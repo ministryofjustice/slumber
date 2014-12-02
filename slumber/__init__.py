@@ -84,6 +84,7 @@ class Resource(ResourceAttributesMixin, object):
     def _request(self, method, data=None, files=None, params=None):
         s = self._store["serializer"]
         url = self.url()
+        timeout = self._store.get("timeout", None)
 
         headers = {"accept": s.get_content_type()}
 
@@ -92,7 +93,7 @@ class Resource(ResourceAttributesMixin, object):
             if data is not None:
                 data = s.dumps(data)
 
-        resp = self._store["session"].request(method, url, data=data, params=params, files=files, headers=headers)
+        resp = self._store["session"].request(method, url, data=data, params=params, files=files, headers=headers, timeout=timeout)
 
         if 400 <= resp.status_code <= 499:
             raise exceptions.HttpClientError("Client Error %s: %s" % (resp.status_code, url), response=resp, content=resp.content)
@@ -179,7 +180,7 @@ class Resource(ResourceAttributesMixin, object):
 
 class API(ResourceAttributesMixin, object):
 
-    def __init__(self, base_url=None, auth=None, format=None, append_slash=True, session=None, serializer=None):
+    def __init__(self, base_url=None, auth=None, format=None, append_slash=True, session=None, serializer=None, timeout=None):
         if serializer is None:
             serializer = Serializer(default=format)
 
@@ -193,6 +194,7 @@ class API(ResourceAttributesMixin, object):
             "append_slash": append_slash,
             "session": session,
             "serializer": serializer,
+            "timeout": timeout,
         }
 
         # Do some Checks for Required Values
