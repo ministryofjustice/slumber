@@ -380,3 +380,25 @@ class ResourceTestCase(unittest.TestCase):
         with self.assertRaises(requests.exceptions.ReadTimeout):
             client.delay(10).get()
             assert False, "The recv() request should time out."
+
+    def test_extra_header(self):
+        extra_headers = {
+            "Accept-Language": "en-GB"
+        }
+        client = slumber.API(base_url="http://httpbin.org/", append_slash=False, extra_headers=extra_headers)
+        resp = client.headers.get()
+
+        self.assertDictContainsSubset(extra_headers, resp["headers"])
+
+    def test_extra_headers(self):
+        from requests.utils import default_user_agent
+
+        user_agent = "slumber %s" % default_user_agent()  # cannot import version from setup.py
+        extra_headers = {
+            "User-Agent": user_agent,
+            "Cookie": "session=1234567890",
+        }
+        client = slumber.API(base_url="http://httpbin.org/", append_slash=False, extra_headers=extra_headers)
+        resp = client.headers.get()
+
+        self.assertDictContainsSubset(extra_headers, resp["headers"])

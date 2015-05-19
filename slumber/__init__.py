@@ -87,6 +87,9 @@ class Resource(ResourceAttributesMixin, object):
         timeout = self._store.get("timeout", None)
 
         headers = {"accept": s.get_content_type()}
+        extra_headers = self._store.get("extra_headers", {})
+        if extra_headers:
+            headers.update(extra_headers)
 
         if not files:
             headers["content-type"] = s.get_content_type()
@@ -180,7 +183,7 @@ class Resource(ResourceAttributesMixin, object):
 
 class API(ResourceAttributesMixin, object):
 
-    def __init__(self, base_url=None, auth=None, format=None, append_slash=True, session=None, serializer=None, timeout=None):
+    def __init__(self, base_url=None, auth=None, format=None, append_slash=True, session=None, serializer=None, timeout=None, extra_headers=None):
         if serializer is None:
             serializer = Serializer(default=format)
 
@@ -195,6 +198,7 @@ class API(ResourceAttributesMixin, object):
             "session": session,
             "serializer": serializer,
             "timeout": timeout,
+            "extra_headers": extra_headers,
         }
 
         # Do some Checks for Required Values
